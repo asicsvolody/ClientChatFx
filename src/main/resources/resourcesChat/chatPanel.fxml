@@ -14,7 +14,7 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuItem?>
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" styleClass="vBox-back-chat"
-      stylesheets="../css/StyleClassBlue.css" xmlns="http://javafx.com/javafx/8.0.211" xmlns:fx="http://javafx.com/fxml/1"
+      stylesheets="/resourcesChat/css/StyleClassBlue.css" xmlns="http://javafx.com/javafx/8.0.211" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="ru.yakimov.chat.ControllerChat">
    <children>
 

@@ -11,7 +11,7 @@
 
 <VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
       minWidth="-Infinity" prefHeight="575.0" prefWidth="600.0" styleClass="backPanel"
-      stylesheets="../css/StyleRegistration.css" xmlns="http://javafx.com/javafx"
+      stylesheets="/resourcesReg/css/StyleRegistration.css" xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.yakimov.registration.RegController">
    <children>
       <HBox prefHeight="30.0" prefWidth="600.0">

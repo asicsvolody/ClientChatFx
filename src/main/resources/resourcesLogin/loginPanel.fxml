@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <VBox fx:id="rootVBox" alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
-      styleClass="vBox-back-login" stylesheets="../css/StyleLogin.css"
+      styleClass="vBox-back-login" stylesheets="/resourcesLogin/css/StyleLogin.css"
       xmlns="http://javafx.com/javafx/8.0.211" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="ru.yakimov.login.ControllerLogin">
     <children>

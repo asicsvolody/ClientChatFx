@@ -8,9 +8,8 @@
 
 <?import javafx.scene.control.ScrollPane?>
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
-      styleClass="vBox-back-private-chat" stylesheets="../css/StyleClassBlue.css"
-      xmlns="http://javafx.com/javafx/8.0.211" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="ru.yakimov.chat.ControllerPrivateChat">
+      styleClass="vBox-back-private-chat" xmlns="http://javafx.com/javafx/8.0.211"
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.yakimov.chat.ControllerPrivateChat">
    <children>
       <HBox styleClass="hBox-private-nickName">
          <children>

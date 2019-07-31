@@ -1,26 +1,28 @@
 package ru.yakimov.chat;
 
+import ru.yakimov.ChatMain;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import ru.yakimov.ChatMain;
 
 import java.io.IOException;
 
 public class PrivateStage extends Stage {
     ControllerPrivateChat controllerPrivateChat;
     String privateNickTo;
+    Parent root = null;
+
 
 
     public PrivateStage(String privateNickTo) {
         this.privateNickTo = privateNickTo;
-        Parent root = null;
         try {
-            FXMLLoader loaderPrivateChat = new FXMLLoader(getClass().getResource("../../../../resources/fxml/privateChat.fxml"));
+            FXMLLoader loaderPrivateChat = new FXMLLoader(getClass().getResource("/resourcesChat/privateChat.fxml"));
             root = loaderPrivateChat.load();
             setTitle("PrivateChat");
             controllerPrivateChat= loaderPrivateChat.getController();
+            root.getStylesheets().addAll(ChatMain.sceneChat.getRoot().getStylesheets());
             Scene scene = new Scene(root,400,575);
             controllerPrivateChat= loaderPrivateChat.getController();
 
@@ -34,4 +36,10 @@ public class PrivateStage extends Stage {
             e.printStackTrace();
         }
     }
+
+    public void changeCss(String cssUrl){
+        root.getStylesheets().clear();
+        root.getStylesheets().add(cssUrl);
+    }
+
 }

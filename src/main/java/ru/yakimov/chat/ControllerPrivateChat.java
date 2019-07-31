@@ -1,5 +1,6 @@
 package ru.yakimov.chat;
 
+import ru.yakimov.ChatMain;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -7,7 +8,6 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import ru.yakimov.ChatMain;
 
 public class ControllerPrivateChat {
 

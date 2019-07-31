@@ -22,9 +22,10 @@
         <resources>
             <resource>
                 <filtering>false</filtering>
-                <directory>${basedir}/src/main/resources/fxml</directory>
+                <directory>/src/main/resources</directory>
                 <includes>
                     <include>**/*.fxml</include>
+                    <include>**/**/*.css</include>
                 </includes>
             </resource>
         </resources>
