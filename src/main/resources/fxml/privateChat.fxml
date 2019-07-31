@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<?import javafx.scene.control.ScrollPane?>
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+      styleClass="vBox-back-private-chat" stylesheets="../css/StyleClassBlue.css"
+      xmlns="http://javafx.com/javafx/8.0.211" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="ru.yakimov.chat.ControllerPrivateChat">
+   <children>
+      <HBox styleClass="hBox-private-nickName">
+         <children>
+            <Label styleClass="label-private-with" text="private with:" />
+            <Label fx:id="nickNamePrivate" styleClass="label-nickName-private" text="NN" />
+         </children>
+      </HBox>
+      <ScrollPane fx:id="scrollPaneMsg" VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS" hbarPolicy="NEVER" styleClass="scroll-pane-message">
+         <VBox fx:id="vBoxMessage" prefWidth="400.0" styleClass="vBox-msg" />
+      </ScrollPane>      <HBox prefHeight="30.0" prefWidth="400.0">
+         <children>
+            <TextField fx:id="messageTextField" onAction="#sendMsg" promptText="Введите сообщение..." styleClass="text-field-msg" />
+            <Button mnemonicParsing="false" onAction="#sendMsg" styleClass="button-send-msg" text="SEND" />
+         </children>
+      </HBox>
+   </children>
+</VBox>
