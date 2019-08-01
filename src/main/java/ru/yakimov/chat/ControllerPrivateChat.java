@@ -27,7 +27,7 @@ public class ControllerPrivateChat {
 
 
 
-    public void setLabelNickTo(String nick){
+    void setLabelNickTo(String nick){
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
@@ -37,7 +37,7 @@ public class ControllerPrivateChat {
         });
     }
 
-    public void addToVBoxMessage(HBox messageHBox){
+    void addToVBoxMessage(HBox messageHBox){
         Platform.runLater(new Runnable() {
             @Override
             public void run() {

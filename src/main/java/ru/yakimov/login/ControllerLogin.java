@@ -8,16 +8,11 @@ import ru.yakimov.ChatMain;
 import ru.yakimov.chat.ControllerChat;
 import ru.yakimov.registration.RegController;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.net.Socket;
 
 public class ControllerLogin {
 
 
-    private Socket socket;
-    private DataInputStream in;
-    private DataOutputStream out;
     private ControllerChat controllerChat;
 
     @FXML
@@ -37,14 +32,14 @@ public class ControllerLogin {
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {
-                    ChatMain.primaryStage.setScene(ChatMain.sceneChat);
+                    ChatMain.primaryStage.setScene(ChatMain.sceneHashMap.get("sceneChat"));
                 }
             });
         }else{
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {
-                    ChatMain.primaryStage.setScene(ChatMain.sceneLogin);
+                    ChatMain.primaryStage.setScene(ChatMain.sceneHashMap.get("sceneLogin"));
                     ChatMain.controllerChat.clearChat();
                 }
             });        }
@@ -53,7 +48,7 @@ public class ControllerLogin {
     public void tryToAuth() {
 
         controllerChat = ChatMain.controllerChat;
-        socket = controllerChat.socket;
+        Socket socket = controllerChat.socket;
 
         if(socket == null || socket.isClosed()) {
             controllerChat.connect();
@@ -80,11 +75,11 @@ public class ControllerLogin {
 
 
     public void registration(){
-        ChatMain.primaryStage.setScene(ChatMain.sceneRegistration);
+        ChatMain.primaryStage.setScene(ChatMain.sceneHashMap.get("sceneRegistration"));
     }
 
     public void recoveryPass(){
-        ChatMain.primaryStage.setScene(ChatMain.sceneRecovery);
+        ChatMain.primaryStage.setScene(ChatMain.sceneHashMap.get("sceneRecovery"));
     }
 
 

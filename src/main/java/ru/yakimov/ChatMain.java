@@ -12,18 +12,18 @@ import ru.yakimov.registration.RecoveryController;
 import ru.yakimov.registration.RegController;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 public class ChatMain  extends Application {
+
+    public static HashMap<String,Scene> sceneHashMap;
+//    public static HashMap(String,)
 
     public static ControllerChat controllerChat;
     public static ControllerLogin controllerLogin;
     public static RegController regController;
     public static RecoveryController recoveryController;
 
-    public static  Scene sceneLogin;
-    public static Scene sceneRegistration;
-    public static Scene sceneChat;
-    public static Scene sceneRecovery;
 
     private final int WINDOW_WIDTH = 600;
     private final int WINDOW_HEIGHT = 575;
@@ -31,10 +31,10 @@ public class ChatMain  extends Application {
     public static Stage primaryStage;
     @Override
     public void start(Stage primaryStage) throws Exception {
-        this.primaryStage = primaryStage;
+        ChatMain.primaryStage = primaryStage;
         sceneInitialization();
         primaryStage.setTitle("Yakimovs Chat");
-        primaryStage.setScene(sceneLogin);
+        primaryStage.setScene(sceneHashMap.get("sceneLogin"));
         primaryStage.setResizable(false);
         primaryStage.show();
         primaryStage.setOnCloseRequest(windowEVENT ->{
@@ -47,29 +47,30 @@ public class ChatMain  extends Application {
     }
 
     private void sceneInitialization() throws IOException{
+        sceneHashMap = new HashMap<>();
 
         FXMLLoader loaderLogin = new FXMLLoader();
         Parent rootLogin = loaderLogin.load(getClass()
                 .getResourceAsStream("/resourcesLogin/loginPanel.fxml"));
-        sceneLogin = new Scene(rootLogin,WINDOW_WIDTH,WINDOW_HEIGHT);
+        sceneHashMap.put("sceneLogin", new Scene(rootLogin,WINDOW_WIDTH,WINDOW_HEIGHT));
         controllerLogin = loaderLogin.getController();
 
         FXMLLoader loaderRegistration = new FXMLLoader();
         Parent rootRegistration = loaderRegistration.load(getClass()
                 .getResourceAsStream("/resourcesReg/registration.fxml"));
-        sceneRegistration = new Scene(rootRegistration,WINDOW_WIDTH,WINDOW_HEIGHT);
+        sceneHashMap.put("sceneRegistration", new Scene(rootRegistration,WINDOW_WIDTH,WINDOW_HEIGHT));
         regController = loaderRegistration.getController();
 
         FXMLLoader loaderChat = new FXMLLoader();
         Parent rootChat = loaderChat.load(getClass()
                 .getResourceAsStream("/resourcesChat/chatPanel.fxml"));
-        sceneChat = new Scene(rootChat,WINDOW_WIDTH,WINDOW_HEIGHT);
+        sceneHashMap.put("sceneChat", new Scene(rootChat,WINDOW_WIDTH,WINDOW_HEIGHT));
         controllerChat = loaderChat.getController();
 
         FXMLLoader loaderRecovery = new FXMLLoader();
         Parent rootRecovery = loaderRecovery.load(getClass()
                 .getResourceAsStream("/resourcesReg/passRecovery.fxml"));
-        sceneRecovery = new Scene(rootRecovery,WINDOW_WIDTH,WINDOW_HEIGHT);
+        sceneHashMap.put("sceneRecovery", new Scene(rootRecovery,WINDOW_WIDTH,WINDOW_HEIGHT));
         recoveryController = loaderRecovery.getController();
 
 

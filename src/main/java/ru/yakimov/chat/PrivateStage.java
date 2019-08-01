@@ -8,21 +8,21 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
-public class PrivateStage extends Stage {
+class PrivateStage extends Stage {
     ControllerPrivateChat controllerPrivateChat;
     String privateNickTo;
-    Parent root = null;
+    private Parent root = null;
 
 
 
-    public PrivateStage(String privateNickTo) {
+    PrivateStage(String privateNickTo) {
         this.privateNickTo = privateNickTo;
         try {
             FXMLLoader loaderPrivateChat = new FXMLLoader(getClass().getResource("/resourcesChat/privateChat.fxml"));
             root = loaderPrivateChat.load();
             setTitle("PrivateChat");
             controllerPrivateChat= loaderPrivateChat.getController();
-            root.getStylesheets().addAll(ChatMain.sceneChat.getRoot().getStylesheets());
+            root.getStylesheets().addAll(ChatMain.sceneHashMap.get("sceneChat").getRoot().getStylesheets());
             Scene scene = new Scene(root,400,575);
             controllerPrivateChat= loaderPrivateChat.getController();
 
@@ -37,7 +37,7 @@ public class PrivateStage extends Stage {
         }
     }
 
-    public void changeCss(String cssUrl){
+    void changeCss(String cssUrl){
         root.getStylesheets().clear();
         root.getStylesheets().add(cssUrl);
     }

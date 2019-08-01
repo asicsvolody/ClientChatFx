@@ -390,7 +390,7 @@ public class ControllerChat {
 
     }
 
-    public void deleteFromPrivateStageArrayList(PrivateStage ps){
+    void deleteFromPrivateStageArrayList(PrivateStage ps){
         privateStageArrayList.remove(ps);
         deletedPrivateStageArrayList.add(ps);
     }
@@ -465,22 +465,18 @@ public class ControllerChat {
     }
 
     private void changeCssFromEverything(String cssUrl){
-        ChatMain.sceneChat.getRoot().getStylesheets().clear();
-        ChatMain.sceneChat.getRoot().getStylesheets().add(cssUrl);
-        changeCssFromActivePrivate(cssUrl);
-        changeCssFromPrivateDeleted(cssUrl);
+        ChatMain.sceneHashMap.get("sceneChat").getRoot().getStylesheets().clear();
+        ChatMain.sceneHashMap.get("sceneChat").getRoot().getStylesheets().add(cssUrl);
+        changeCssFromPrivate(cssUrl);
 
     }
-
-    private void changeCssFromActivePrivate(String cssUrl){
-        Iterator <PrivateStage> iterator = privateStageArrayList.iterator();
-        while (iterator.hasNext()){
-            iterator.next().changeCss(cssUrl);
-        }
+    private void changeCssFromPrivate(String cssUrl){
+        changeCss(cssUrl,privateStageArrayList);
+        changeCss(cssUrl,deletedPrivateStageArrayList);
     }
 
-    private void changeCssFromPrivateDeleted(String cssUrl){
-        Iterator <PrivateStage> iterator = deletedPrivateStageArrayList.iterator();
+    private void changeCss(String cssUrl, ArrayList<PrivateStage> arrayList){
+        Iterator <PrivateStage> iterator = arrayList.iterator();
         while (iterator.hasNext()){
             iterator.next().changeCss(cssUrl);
         }

@@ -33,7 +33,7 @@ public class RecoveryController {
         }
     }
 
-    public void readResult(String serverMsg){
+    void readResult(String serverMsg){
         String[] magArr = serverMsg.split(" ",2);
         Platform.runLater(new Runnable() {
             @Override

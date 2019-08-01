@@ -6,7 +6,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import ru.yakimov.ChatMain;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -167,7 +166,7 @@ public class RegController {
     }
 
     public void backToLoginScene(){
-        ChatMain.primaryStage.setScene(ChatMain.sceneLogin);
+        ChatMain.primaryStage.setScene(ChatMain.sceneHashMap.get("sceneLogin"));
 
     }
 
