@@ -17,8 +17,6 @@ import java.util.HashMap;
 public class ChatMain  extends Application {
 
     public static HashMap<String,Scene> sceneHashMap;
-//    public static HashMap(String,)
-
     public static ControllerChat controllerChat;
     public static ControllerLogin controllerLogin;
     public static RegController regController;
@@ -37,6 +35,7 @@ public class ChatMain  extends Application {
         primaryStage.setScene(sceneHashMap.get("sceneLogin"));
         primaryStage.setResizable(false);
         primaryStage.show();
+        
         primaryStage.setOnCloseRequest(windowEVENT ->{
             controllerChat.dispose();
             regController.dispose();

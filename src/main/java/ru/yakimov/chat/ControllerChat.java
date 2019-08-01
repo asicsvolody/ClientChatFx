@@ -77,18 +77,17 @@ public class ControllerChat {
 
     public void connect() {
         try {
+            privateStageArrayList = new ArrayList<>();
+            deletedPrivateStageArrayList = new ArrayList<>();
 
             socket =new Socket(IP_ADDRESS,PORT);
-
-//            this.isAuthorized = false;
 
             in = new DataInputStream(socket.getInputStream());
             out = new DataOutputStream(socket.getOutputStream());
 
             controllerLogin = ChatMain.controllerLogin;
 
-            privateStageArrayList = new ArrayList<>();
-            deletedPrivateStageArrayList = new ArrayList<>();
+
 
             clientList.setOnContextMenuRequested(new EventHandler<ContextMenuEvent>() {
                 @Override
@@ -230,8 +229,10 @@ public class ControllerChat {
     public void sendMsgFromString(String str){
         try {
             out.writeUTF(str);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException | RuntimeException e) {
+            System.out.println("Нет соединения");
+            ChatMain.controllerLogin.writeToLabelNotIdentification("Ожидание сети");
+//            e.printStackTrace();
         }
     }
 

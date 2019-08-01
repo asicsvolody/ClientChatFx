@@ -50,12 +50,13 @@ public class ControllerLogin {
         controllerChat = ChatMain.controllerChat;
         Socket socket = controllerChat.socket;
 
-        if(socket == null || socket.isClosed()) {
-            controllerChat.connect();
-        }
+
         String login = loginField.getText();
         String password = passwordField.getText();
         if(RegController.isTextFieldValid(login) && RegController.isTextFieldValid(password)) {
+            if(socket == null || socket.isClosed()) {
+                controllerChat.connect();
+            }
             controllerChat.writeLoginPassword(login, password);
             controllerChat.sendMsgFromString("/auth " + login + " " + password);
             loginField.clear();
