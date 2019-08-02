@@ -17,6 +17,7 @@ import java.util.HashMap;
 public class ChatMain  extends Application {
 
     public static HashMap<String,Scene> sceneHashMap;
+
     public static ControllerChat controllerChat;
     public static ControllerLogin controllerLogin;
     public static RegController regController;
@@ -27,6 +28,7 @@ public class ChatMain  extends Application {
     private final int WINDOW_HEIGHT = 575;
 
     public static Stage primaryStage;
+
     @Override
     public void start(Stage primaryStage) throws Exception {
         ChatMain.primaryStage = primaryStage;
@@ -35,7 +37,7 @@ public class ChatMain  extends Application {
         primaryStage.setScene(sceneHashMap.get("sceneLogin"));
         primaryStage.setResizable(false);
         primaryStage.show();
-        
+
         primaryStage.setOnCloseRequest(windowEVENT ->{
             controllerChat.dispose();
             regController.dispose();

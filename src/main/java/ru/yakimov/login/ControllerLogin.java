@@ -24,6 +24,8 @@ public class ControllerLogin {
     @FXML
     private TextField passwordField;
 
+    private volatile boolean isConnect = false;
+
 
 
     public void setAuthorized(boolean isAuthorized){
@@ -45,18 +47,29 @@ public class ControllerLogin {
             });        }
     }
 
-    public void tryToAuth() {
 
+
+    public synchronized void tryToAuth() {
         controllerChat = ChatMain.controllerChat;
         Socket socket = controllerChat.socket;
 
 
         String login = loginField.getText();
         String password = passwordField.getText();
+
         if(RegController.isTextFieldValid(login) && RegController.isTextFieldValid(password)) {
             if(socket == null || socket.isClosed()) {
                 controllerChat.connect();
             }
+            while(!isConnect){
+//
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            writeToLabelNotIdentification("Сервер найден");
             controllerChat.writeLoginPassword(login, password);
             controllerChat.sendMsgFromString("/auth " + login + " " + password);
             loginField.clear();
@@ -83,5 +96,7 @@ public class ControllerLogin {
         ChatMain.primaryStage.setScene(ChatMain.sceneHashMap.get("sceneRecovery"));
     }
 
-
+    public void setConnect(boolean connect) {
+        isConnect = connect;
+    }
 }

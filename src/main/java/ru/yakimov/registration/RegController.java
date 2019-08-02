@@ -9,6 +9,7 @@ import ru.yakimov.ChatMain;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.Socket;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -76,10 +77,27 @@ public class RegController {
             e.printStackTrace();
         }
     }
-
-    public void connectReg(){
+    private void socketWaitAndInitialisation() throws IOException {
         try {
-            socket = new Socket(IP_ADDRESS,PORT);
+            socket = new Socket(IP_ADDRESS, PORT);
+
+        }catch(ConnectException e){
+            System.out.println("Ожидание соединения");
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ex) {
+                ex.printStackTrace();
+            }
+            socketWaitAndInitialisation();
+        }
+    }
+
+
+    void connectReg(){
+        try {
+//            socket = new Socket(IP_ADDRESS,PORT);
+            socketWaitAndInitialisation();
+
             in = new DataInputStream(socket.getInputStream());
             out = new DataOutputStream(socket.getOutputStream());
 

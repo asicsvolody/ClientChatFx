@@ -26,6 +26,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -72,7 +73,20 @@ public class ControllerChat {
 
 
 
+    private void socketWaitAndInitialisation() throws IOException {
+        try {
+            socket = new Socket(IP_ADDRESS, PORT);
 
+        }catch(ConnectException e){
+            System.out.println("Ожидание соединения");
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ex) {
+                ex.printStackTrace();
+            }
+            socketWaitAndInitialisation();
+        }
+    }
 
 
     public void connect() {
@@ -80,10 +94,13 @@ public class ControllerChat {
             privateStageArrayList = new ArrayList<>();
             deletedPrivateStageArrayList = new ArrayList<>();
 
-            socket =new Socket(IP_ADDRESS,PORT);
+//            socket =new Socket(IP_ADDRESS,PORT);
+            socketWaitAndInitialisation();
 
             in = new DataInputStream(socket.getInputStream());
             out = new DataOutputStream(socket.getOutputStream());
+
+            ChatMain.controllerLogin.setConnect(true);
 
             controllerLogin = ChatMain.controllerLogin;
 
@@ -149,7 +166,8 @@ public class ControllerChat {
                         }
                     }catch (EOFException e){
                         setDisableBtmAndField(true);
-                        setTimeOut(ControllerChat.this,2000);
+                        new Thread(ControllerChat.this::connect).start();
+//                        setTimeOut(ControllerChat.this,2000);
                         getSystemMessage("Сервер упал. Ожидание подключения");
                         System.out.println("Ошибка чтения");
                     }
@@ -166,12 +184,15 @@ public class ControllerChat {
                 }
             }).start();
         } catch (IOException e) {
-            setDisableBtmAndField(true);
-            setTimeOut(ControllerChat.this,2000);
-            System.out.println("Попытка подключения");
+            e.printStackTrace();
+//            setDisableBtmAndField(true);
+//            connect();
+////            setTimeOut(ControllerChat.this,2000);
+//            System.out.println("Попытка подключения");
         }
 
     }
+
 
     public void sendMsg(){
 
@@ -229,10 +250,8 @@ public class ControllerChat {
     public void sendMsgFromString(String str){
         try {
             out.writeUTF(str);
-        } catch (IOException | RuntimeException e) {
-            System.out.println("Нет соединения");
-            ChatMain.controllerLogin.writeToLabelNotIdentification("Ожидание сети");
-//            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -396,22 +415,6 @@ public class ControllerChat {
         deletedPrivateStageArrayList.add(ps);
     }
 
-
-    private void setTimeOut(ControllerChat controllerChat, int delay){
-
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(delay);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                controllerChat.connect();
-            }
-        }).start();
-    }
 
     private void setDisableBtmAndField(boolean isDisable){
         Platform.runLater(new Runnable() {
