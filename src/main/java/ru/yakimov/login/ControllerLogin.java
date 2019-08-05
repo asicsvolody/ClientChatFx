@@ -26,28 +26,17 @@ public class ControllerLogin {
 
     private volatile boolean isConnect = false;
 
-
-
     public void setAuthorized(boolean isAuthorized){
         controllerChat.setLogin(isAuthorized);
         if(isAuthorized){
-            Platform.runLater(new Runnable() {
-                @Override
-                public void run() {
-                    ChatMain.primaryStage.setScene(ChatMain.sceneHashMap.get("sceneChat"));
-                }
-            });
+            Platform.runLater(()-> ChatMain.primaryStage.setScene(ChatMain.sceneHashMap.get("sceneChat")));
         }else{
-            Platform.runLater(new Runnable() {
-                @Override
-                public void run() {
+            Platform.runLater(()-> {
                     ChatMain.primaryStage.setScene(ChatMain.sceneHashMap.get("sceneLogin"));
                     ChatMain.controllerChat.clearChat();
-                }
-            });        }
+                });
+        }
     }
-
-
 
     public synchronized void tryToAuth() {
         controllerChat = ChatMain.controllerChat;
@@ -62,29 +51,25 @@ public class ControllerLogin {
                 controllerChat.connect();
             }
             while(!isConnect){
-//
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
-            writeToLabelNotIdentification("Сервер найден");
+
             controllerChat.writeLoginPassword(login, password);
             controllerChat.sendMsgFromString("/auth " + login + " " + password);
             loginField.clear();
             passwordField.clear();
+            writeToLabelNotIdentification(" ");
         }else{
             writeToLabelNotIdentification("Введены неправильные значения");
         }
     }
 
     public void writeToLabelNotIdentification(String str){
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                labelNotIdentification.setText(str);                                    }
-        });
+        Platform.runLater(()-> labelNotIdentification.setText(str));
     }
 
 

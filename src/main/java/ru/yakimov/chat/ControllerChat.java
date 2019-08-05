@@ -3,13 +3,10 @@ package ru.yakimov.chat;
 import ru.yakimov.ChatMain;
 import ru.yakimov.login.ControllerLogin;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Bounds;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -28,8 +25,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.HashMap;
 
 public class ControllerChat {
 
@@ -40,10 +36,9 @@ public class ControllerChat {
     private final String IP_ADDRESS = "localhost";
     private final int PORT = 8189;
 
-    private ArrayList<PrivateStage> privateStageArrayList;
-    private ArrayList<PrivateStage> deletedPrivateStageArrayList;
+    private HashMap<String, PrivateStage> privateStageHashMap = new HashMap<>();
 
-    private ControllerLogin controllerLogin;
+    private ControllerLogin controllerLogin = ChatMain.controllerLogin;
 
     private boolean isLogin = false;
     private String login;
@@ -73,6 +68,55 @@ public class ControllerChat {
 
 
 
+
+    public void connect() {
+        try {
+            objectInitialization();
+
+            componentsPreparation();
+
+            reLoginAfterCrashServer();
+
+            new Thread(()->{
+                    try {
+                        authorizationCycle();
+
+                        mainWorkCycle();
+                    }catch (EOFException e){
+                        crashServerInstruction();
+                    }
+                    catch (IOException e){
+                        e.printStackTrace();
+                    } finally {
+                        try {
+                            socket.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+            }).start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void objectInitialization() throws IOException {
+
+        socketWaitAndInitialisation();
+
+        in = new DataInputStream(socket.getInputStream());
+        out = new DataOutputStream(socket.getOutputStream());
+    }
+
+    private void componentsPreparation(){
+        ChatMain.controllerLogin.setConnect(true);
+        clientList.setOnContextMenuRequested((event)-> {
+                MyContextMenu myContextMenu = new MyContextMenu(clientList.getSelectionModel().getSelectedItem());
+                myContextMenu.show(clientList,event.getScreenX(),event.getScreenY());
+            });
+        setDisableBtmAndField(false);
+    }
+
     private void socketWaitAndInitialisation() throws IOException {
         try {
             socket = new Socket(IP_ADDRESS, PORT);
@@ -88,114 +132,53 @@ public class ControllerChat {
         }
     }
 
-
-    public void connect() {
-        try {
-            privateStageArrayList = new ArrayList<>();
-            deletedPrivateStageArrayList = new ArrayList<>();
-
-//            socket =new Socket(IP_ADDRESS,PORT);
-            socketWaitAndInitialisation();
-
-            in = new DataInputStream(socket.getInputStream());
-            out = new DataOutputStream(socket.getOutputStream());
-
-            ChatMain.controllerLogin.setConnect(true);
-
-            controllerLogin = ChatMain.controllerLogin;
-
-
-
-            clientList.setOnContextMenuRequested(new EventHandler<ContextMenuEvent>() {
-                @Override
-                public void handle(ContextMenuEvent event) {
-                    MyContextMenu myContextMenu = new MyContextMenu(clientList.getSelectionModel().getSelectedItem());
-                    myContextMenu.show(clientList,event.getScreenX(),event.getScreenY());
+    private void authorizationCycle() throws IOException {
+        while(true) {
+            String str = in.readUTF();
+            if(str.startsWith("/serverclosed")) break;
+            if(str.startsWith("/authok")) {
+                if(!isLogin) {
+                    controllerLogin.setAuthorized(true);
+                    String[] nickArr = str.split(" ");
+                    nick = nickArr[1];
+                    Platform.runLater(()->nickName.setText(nick));
                 }
-            });
-
-            reLoginAfterCrashServer();
-            setDisableBtmAndField(false);
-
-
-
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        while(true) {
-                            String str = in.readUTF();
-                            if(str.startsWith("/serverclosed")) break;
-                            if(str.startsWith("/authok")) {
-                                if(!isLogin) {
-                                    controllerLogin.setAuthorized(true);
-                                    String[] nickArr = str.split(" ");
-                                    nick = nickArr[1];
-                                    Platform.runLater(new Runnable() {
-                                        @Override
-                                        public void run() {
-
-                                            nickName.setText(nick);
-                                        }
-                                    });
-                                }
-                                break;
-                            }else{
-                                controllerLogin.writeToLabelNotIdentification(str);
-                            }
-                        }
-                        while(true) {
-                            String str = in.readUTF();
-                            if (str.startsWith("/serverclosed")) break;
-                            if (str.startsWith("/clientlist")) {
-                                String[] tokens = str.split(" ");
-                                Platform.runLater(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        clientList.getItems().clear();
-                                        for (int i = 1; i < tokens.length; i++) {
-                                            clientList.getItems().add(tokens[i]);
-                                        }
-                                    }
-                                });
-                            } else if (str.startsWith("/w")) {
-                                getPrivateMessage(str);
-                            } else {
-                                inputToVBoxMessage(str );
-                            }
-                        }
-                    }catch (EOFException e){
-                        setDisableBtmAndField(true);
-                        new Thread(ControllerChat.this::connect).start();
-//                        setTimeOut(ControllerChat.this,2000);
-                        getSystemMessage("Сервер упал. Ожидание подключения");
-                        System.out.println("Ошибка чтения");
-                    }
-                    catch (IOException e){
-                        e.printStackTrace();
-                    } finally {
-                        try {
-                            socket.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        //setAuthorized(false);
-                    }
-                }
-            }).start();
-        } catch (IOException e) {
-            e.printStackTrace();
-//            setDisableBtmAndField(true);
-//            connect();
-////            setTimeOut(ControllerChat.this,2000);
-//            System.out.println("Попытка подключения");
+                break;
+            }else{
+                controllerLogin.writeToLabelNotIdentification(str);
+            }
         }
+    }
 
+    private void mainWorkCycle() throws IOException {
+        while(isLogin) {
+            String str = in.readUTF();
+            if (str.startsWith("/serverclosed")) break;
+            if (str.startsWith("/clientlist")) {
+                String[] tokens = str.split(" ");
+                Platform.runLater(()-> {
+                        clientList.getItems().clear();
+                        for (int i = 1; i < tokens.length; i++) {
+                            clientList.getItems().add(tokens[i]);
+                        }
+                    });
+            } else if (str.startsWith("/w")) {
+                getPrivateMessage(str);
+            } else {
+                inputToVBoxMessage(str );
+            }
+        }
+    }
+
+    private void crashServerInstruction(){
+        setDisableBtmAndField(true);
+        new Thread(ControllerChat.this::connect).start();
+        inputToVBoxMessageSystem("Сервер упал. Ожидание подключения");
+        System.out.println("Поиск сервера");
     }
 
 
     public void sendMsg(){
-
         try {
             out.writeUTF(messageTextField.getText());
             messageTextField.clear();
@@ -203,48 +186,34 @@ public class ControllerChat {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
-    private void getSystemMessage(String msg){
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                vBoxMessage.getChildren().add(new SystemMessageHBox(msg));
-            }
-        });
-    }
 
     private void inputToVBoxMessage(String msg){
         String[] msgArr = msg.split(" ",2);
         if(msgArr[0].equals("/systemmsg")){
-            if(!msgArr[1].startsWith("null")) {
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        vBoxMessage.getChildren().add(new SystemMessageHBox(msgArr[1]));
-                    }
-                });
-            }
+            inputToVBoxMessageSystem(msgArr[1]);
         } else if(msgArr[0].equals(nick)){
-            Platform.runLater(new Runnable() {
-                @Override
-                public void run() {
-                    vBoxMessage.getChildren().add(new MyMessageHBox(makeMessageForLabel(msgArr[1])));
-
-                }
-            });
+           inputToVBoxMessageMy(msgArr[1]);
         }else {
-            Platform.runLater(new Runnable() {
-                @Override
-                public void run() {
-                    vBoxMessage.getChildren().add(new OtherMessageHBox(msgArr[0], makeMessageForLabel(msgArr[1])));
-
-                }
-            });
+            inputToVBoxMessageOther(msgArr[0], msgArr[1]);
         }
         scrollPaneMsg.vvalueProperty().bind(vBoxMessage.heightProperty());
 
+    }
+
+    private void inputToVBoxMessageSystem(String msg){
+        if(!msg.startsWith("null")) {
+            Platform.runLater(()-> vBoxMessage.getChildren().add(new SystemMessageHBox(msg)));
+        }
+    }
+
+    private void inputToVBoxMessageMy(String msg){
+        Platform.runLater(()-> vBoxMessage.getChildren().add(new MyMessageHBox(makeMessageForLabel(msg))));
+    }
+
+    private void inputToVBoxMessageOther(String otherNick, String msg){
+        Platform.runLater(()-> vBoxMessage.getChildren().add(new OtherMessageHBox(otherNick, makeMessageForLabel(msg))));
     }
 
     public void sendMsgFromString(String str){
@@ -255,204 +224,117 @@ public class ControllerChat {
         }
     }
 
+
     public void createPrivateChatFromClick (MouseEvent mouseEvent){
         if(mouseEvent.getClickCount() == 2){
             String nickTo = clientList.getSelectionModel().getSelectedItem();
             if(nickName.getText().equals(nickTo)){
-                Alert alert = new Alert(Alert.AlertType.WARNING,"Вы не можете открыть приватный чат с самим собой!");
-                alert.show();
+                showWarningAlert("Вы не можете открыть приватный чат с самим собой!");
             }else{
-                if(isTherePrivateWithNickTo(deletedPrivateStageArrayList, nickTo)){
-                   resurrectPrivateChat(nickTo);
-                }
-                else if(!isTherePrivateWithNickTo(privateStageArrayList,nickTo)){
-                    createPrivateChat(nickTo);
-                }else{
-                    putTopPrivateMsg(nickTo);
-                }
+                activationPrivateStage(nickTo);
             }
         }
     }
 
-    private boolean isTherePrivateWithNickTo(ArrayList<PrivateStage> arrayList, String nickTo){
-        boolean isThere = false;
-        Iterator <PrivateStage>iterator = arrayList.iterator();
-
-        while(iterator.hasNext()){
-            PrivateStage ps = iterator.next();
-            if(ps.privateNickTo.equals(nickTo)){
-                isThere = true;
-                break;
-            }
-        }
-        return isThere;
+    private void showWarningAlert(String msg){
+        Alert alert = new Alert(Alert.AlertType.WARNING,msg);
+        alert.show();
     }
 
 
     private void getPrivateMessage(String str){
 
         String[] privateMsgArr = str.split(" ",4);
-        if(isTherePrivateWithNickTo(deletedPrivateStageArrayList,privateMsgArr[1])){
-            resurrectPrivateChat(privateMsgArr[1]);
-        }
 
-        if(!privateMsgArr[1].equals(nickName.getText()) && !isTherePrivateWithNickTo(privateStageArrayList,privateMsgArr[1])){
-            createPrivateChat(privateMsgArr[1]);
-        }else{
-            Platform.runLater(new Runnable() {
-                @Override
-                public void run() {
-                    putTopPrivateMsg(privateMsgArr[1]);
-                }
-            });
-        }
+        activationPrivateStage(privateMsgArr[1]);
 
         try {
             Thread.sleep(100);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        Iterator <PrivateStage>iterator = privateStageArrayList.iterator();
-        while(iterator.hasNext()){
-            PrivateStage ps = iterator.next();
-            if(ps.privateNickTo.equals(privateMsgArr[1])){
-                if(str.startsWith("/wsystemmsg")){
-                    ps.controllerPrivateChat.addToVBoxMessage(new SystemMessageHBox(
-                            privateMsgArr[2]+" "+privateMsgArr[3]));
-                }
-                else if (privateMsgArr[2].equals(nickName.getText())) {
-                    ps.controllerPrivateChat.addToVBoxMessage(new MyMessageHBox(makeMessageForLabel(privateMsgArr[3])));
-                    break;
-                }else{
-                    ps.controllerPrivateChat.addToVBoxMessage(new OtherMessageHBox(privateMsgArr[2],makeMessageForLabel(privateMsgArr[3])));
-                    break;
-                }
-            }
+
+        writePrivateMsg(privateMsgArr[1],privateMsgArr[2],privateMsgArr[3],str.startsWith("/wsystemmsg"));
+
+
+    }
+
+    private void activationPrivateStage(String nickTo){
+//        if(deletedPrivateStageHashMap.containsKey(nickTo)){
+//            resurrectPrivateChat(nickTo);
+//        }
+        if(privateStageHashMap.containsKey(nickTo)){
+            privateStageHashMap.get(nickTo).putTop();
+        }else if(!nickTo.equals(nickName.getText())){
+            createPrivateChat(nickTo);
         }
     }
 
-    private void putTopPrivateMsg(String nickTo){
-        Iterator<PrivateStage> iterator = privateStageArrayList.iterator();
-        while (iterator.hasNext()){
-            PrivateStage ps =iterator.next();
-            if(ps.privateNickTo.equals(nickTo)){
-                ps.setAlwaysOnTop(true);
-                ps.setAlwaysOnTop(false);
-                break;
-            }
+    private void writePrivateMsg (String nickTo,String nickFrom, String msg, boolean isSystemMsg){
+        if(isSystemMsg){
+            privateStageHashMap.get(nickTo).controllerPrivateChat
+                    .addToVBoxMessage(new SystemMessageHBox(nickFrom+" "+msg));
+        }
+        else if (nickFrom.equals(nickName.getText())) {
+            privateStageHashMap.get(nickTo).controllerPrivateChat
+                .addToVBoxMessage(new MyMessageHBox(makeMessageForLabel(msg)));
+        }else{ privateStageHashMap.get(nickTo).controllerPrivateChat
+                    .addToVBoxMessage(new OtherMessageHBox(nickFrom,makeMessageForLabel(msg)));
         }
     }
 
 
     private void createPrivateChat(String nickTo){
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                PrivateStage ps = new PrivateStage(nickTo);
-                privateStageArrayList.add(ps);
-                ps.controllerPrivateChat.setLabelNickTo(nickTo);
-                ps.show();
-
-            }
+        Platform.runLater(()->{
+            PrivateStage ps = new PrivateStage(nickTo);
+            privateStageHashMap.put(nickTo, ps);
+            ps.controllerPrivateChat.setLabelNickTo(nickTo);
+            ps.show();
         });
     }
 
     private String makeMessageForLabel(String msg){
         final int NUMBER_IF_SINGS = 30;
-        if(msg.length() > NUMBER_IF_SINGS){
-            String[] msgArr = msg.split(" ");
-            StringBuilder stringBuilder = new StringBuilder();
-            int singsNow = 0;
-            for (String word : msgArr) {
-                if(singsNow+word.length() < NUMBER_IF_SINGS-1){
-                    stringBuilder.append(word);
-                    stringBuilder.append(" ");
-                    singsNow+=word.length()+1;
-                }else if(singsNow+word.length()==NUMBER_IF_SINGS || singsNow+word.length()==NUMBER_IF_SINGS-1){
-                    stringBuilder.append(word);
-                    stringBuilder.append("\n");
-
-                    singsNow = 0;
-                }else{
-                    int countRemainingSymbols = NUMBER_IF_SINGS - singsNow-1;
-                    String[] twoWordsArr = makeTwoWordFromOne(word, countRemainingSymbols);
-                    stringBuilder.append(twoWordsArr[0]);
-                    stringBuilder.append(twoWordsArr[1]);
-
-                    singsNow = word.length() - countRemainingSymbols;
-
-                }
-
+        StringBuilder sb = new StringBuilder();
+        char[] charMsgArr = msg.toCharArray();
+        int charNumber = 0;
+        for (char c: charMsgArr) {
+            sb.append(c);
+            if(charNumber++ >= NUMBER_IF_SINGS){
+                sb.append("\n");
+                charNumber = 0;
             }
-            msg = stringBuilder.toString();
-
         }
-        return msg;
-
-    }
-
-    private String[] makeTwoWordFromOne(String word, int lengthFirstWord){
-        String[] resArr = new String[2];
-        char[] charWordArr = word.toCharArray();
-        StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 0; i <lengthFirstWord ; i++) {
-            stringBuilder.append(charWordArr[i]);
-        }
-        stringBuilder.append("-\n");
-        resArr[0] = stringBuilder.toString();
-        stringBuilder = new StringBuilder();
-        for (int i = lengthFirstWord; i < charWordArr.length ; i++) {
-            stringBuilder.append(charWordArr[i]);
-        }
-        stringBuilder.append(" ");
-        resArr[1] = stringBuilder.toString();
-        return resArr;
-
-    }
-
-    void deleteFromPrivateStageArrayList(PrivateStage ps){
-        privateStageArrayList.remove(ps);
-        deletedPrivateStageArrayList.add(ps);
+        return sb.toString();
     }
 
 
     private void setDisableBtmAndField(boolean isDisable){
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                if(isDisable){
-                    circleIsInNet.setStyle("-fx-fill: red");
-                }else{
-                    circleIsInNet.setStyle("-fx-fill: green");
-                }
-                messageTextField.setDisable(isDisable);
-                btmSend.setDisable(isDisable);
-                clientList.setDisable(isDisable);
-                closeAllPrivateChar();
-
-
+        Platform.runLater(()->{
+            if(isDisable){
+                circleIsInNet.setStyle("-fx-fill: red");
+            }else{
+                circleIsInNet.setStyle("-fx-fill: green");
             }
-        });
+            messageTextField.setDisable(isDisable);
+            btmSend.setDisable(isDisable);
+            clientList.setDisable(isDisable);
+            privateStageHashMap.forEach((k,v)-> v.hide());
+            });
     }
+
 
     private void reLoginAfterCrashServer(){
         if(isLogin){
             try {
                 out.writeUTF("/auth "+login+" "+ password);
-                getSystemMessage("Успешное подключение");
+                inputToVBoxMessageSystem("Успешное подключение");
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    private void closeAllPrivateChar(){
-        Iterator<PrivateStage> iterator = privateStageArrayList.iterator();
-        while (iterator.hasNext()){
-            PrivateStage ps = iterator.next();
-            ps.close();
-        }
-    }
 
     public void writeLoginPassword(String login, String password){
         this.login = login;
@@ -471,47 +353,14 @@ public class ControllerChat {
     private void changeCssFromEverything(String cssUrl){
         ChatMain.sceneHashMap.get("sceneChat").getRoot().getStylesheets().clear();
         ChatMain.sceneHashMap.get("sceneChat").getRoot().getStylesheets().add(cssUrl);
-        changeCssFromPrivate(cssUrl);
+        privateStageHashMap.forEach((k,v)->v.changeCss(cssUrl));
 
     }
-    private void changeCssFromPrivate(String cssUrl){
-        changeCss(cssUrl,privateStageArrayList);
-        changeCss(cssUrl,deletedPrivateStageArrayList);
-    }
 
-    private void changeCss(String cssUrl, ArrayList<PrivateStage> arrayList){
-        Iterator <PrivateStage> iterator = arrayList.iterator();
-        while (iterator.hasNext()){
-            iterator.next().changeCss(cssUrl);
-        }
-    }
 
     public void logout(){
         controllerLogin.setAuthorized(false);
         dispose();
-    }
-
-
-    private void addToPrivateStageArrayListFromDeletedPrivateStageArrayList(PrivateStage ps){
-        privateStageArrayList.add(ps);
-        deletedPrivateStageArrayList.remove(ps);
-    }
-
-    private void resurrectPrivateChat (String nickTo){
-        Iterator<PrivateStage> iterator = deletedPrivateStageArrayList.iterator();
-        while (iterator.hasNext()){
-            PrivateStage ps = iterator.next();
-            if(ps.privateNickTo.equals(nickTo)){
-                addToPrivateStageArrayListFromDeletedPrivateStageArrayList(ps);
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        ps.show();
-                    }
-                });
-                break;
-            }
-        }
     }
 
     public void clearBlacklist(){
@@ -546,21 +395,8 @@ public class ControllerChat {
             MenuItem addBlackList = new MenuItem("add to BlackList");
             MenuItem removeFromBlackList = new MenuItem(" remove from BlackList");
 
-            addBlackList.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
-                    sendMsgFromString("/blacklist "+nick);
-
-                }
-            });
-
-            removeFromBlackList.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
-                    sendMsgFromString("/delblacklist "+nick);
-
-                }
-            });
+            addBlackList.setOnAction((event)-> sendMsgFromString("/blacklist "+nick));
+            removeFromBlackList.setOnAction((event)->sendMsgFromString("/delblacklist "+nick));
 
             this.getItems().addAll(addBlackList,removeFromBlackList);
         }

@@ -23,32 +23,17 @@ public class ControllerPrivateChat {
     @FXML
     ScrollPane scrollPaneMsg;
 
-
-
-
-
     void setLabelNickTo(String nick){
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                nickNamePrivate.setText(nick);
-
-            }
-        });
+        Platform.runLater(()-> nickNamePrivate.setText(nick));
     }
 
     void addToVBoxMessage(HBox messageHBox){
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
+        Platform.runLater(()-> {
                 vBoxMessage.getChildren().add(messageHBox);
                 scrollPaneMsg.vvalueProperty().bind(vBoxMessage.heightProperty());
 
-            }
-        });
+            });
     }
-
-
 
     public void sendMsg(){
         String nickTo = ((PrivateStage)vBoxMessage.getScene().getWindow()).privateNickTo;
