@@ -5,7 +5,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import ru.yakimov.ChatMain;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -13,8 +12,11 @@ import java.net.ConnectException;
 import java.net.Socket;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import ru.yakimov.ChatMain;
 
 public class RegController {
+
+    private RecoveryController recoveryController = null ;
 
     @FXML
     Label registrationLbl;
@@ -92,6 +94,10 @@ public class RegController {
 
     void connectReg(){
         try {
+            if(recoveryController == null) {
+                recoveryController = ChatMain.loaderHashMap.get("passRecoveryLoader").getController();
+            }
+
             socketWaitAndInitialisation();
 
             in = new DataInputStream(socket.getInputStream());
@@ -113,12 +119,6 @@ public class RegController {
             ).start();
         } catch (IOException e) {
             e.printStackTrace();
-        }finally {
-            try {
-                socket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
     }
     private void socketWaitAndInitialisation() throws IOException {
@@ -144,7 +144,7 @@ public class RegController {
                 successRegAllClear();
                 sendToServer("/end");
             }else if (str.startsWith("/recovery")){
-                ChatMain.recoveryController.readResult(str);
+                recoveryController.readResult(str);
                 sendToServer("/end");
             }
             else{
@@ -195,7 +195,7 @@ public class RegController {
     }
 
     public void backToLoginScene(){
-        ChatMain.primaryStage.setScene(ChatMain.sceneHashMap.get("sceneLogin"));
+        ChatMain.primaryStage.setScene(ChatMain.sceneHashMap.get("loginPanelScene"));
 
     }
 

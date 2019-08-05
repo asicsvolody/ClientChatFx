@@ -23,7 +23,7 @@ class PrivateStage extends Stage {
             root = loaderPrivateChat.load();
             setTitle("PrivateChat");
             controllerPrivateChat= loaderPrivateChat.getController();
-            root.getStylesheets().addAll(ChatMain.sceneHashMap.get("sceneChat").getRoot().getStylesheets());
+            root.getStylesheets().addAll(ChatMain.sceneHashMap.get("chatPanelScene").getRoot().getStylesheets());
             Scene scene = new Scene(root,400,575);
             controllerPrivateChat= loaderPrivateChat.getController();
             setScene(scene);

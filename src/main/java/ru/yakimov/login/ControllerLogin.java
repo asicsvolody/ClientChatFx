@@ -12,7 +12,6 @@ import java.net.Socket;
 
 public class ControllerLogin {
 
-
     private ControllerChat controllerChat;
 
     @FXML
@@ -26,21 +25,22 @@ public class ControllerLogin {
 
     private volatile boolean isConnect = false;
 
+
     public void setAuthorized(boolean isAuthorized){
         controllerChat.setLogin(isAuthorized);
         if(isAuthorized){
-            Platform.runLater(()-> ChatMain.primaryStage.setScene(ChatMain.sceneHashMap.get("sceneChat")));
+            Platform.runLater(()-> ChatMain.primaryStage.setScene(ChatMain.sceneHashMap.get("chatPanelScene")));
         }else{
             Platform.runLater(()-> {
                 writeToLabelNotIdentification(" ");
-                ChatMain.primaryStage.setScene(ChatMain.sceneHashMap.get("sceneLogin"));
-                ChatMain.controllerChat.clearChat();
+                ChatMain.primaryStage.setScene(ChatMain.sceneHashMap.get("loginPanelScene"));
+                controllerChat.clearChat();
                 });
         }
     }
 
     public synchronized void tryToAuth() {
-        controllerChat = ChatMain.controllerChat;
+        controllerChat = ChatMain.loaderHashMap.get("chatPanelLoader").getController();
         Socket socket = controllerChat.socket;
 
 
@@ -82,11 +82,11 @@ public class ControllerLogin {
 
 
     public void registrationScene(){
-        ChatMain.primaryStage.setScene(ChatMain.sceneHashMap.get("sceneRegistration"));
+        ChatMain.primaryStage.setScene(ChatMain.sceneHashMap.get("registrationScene"));
     }
 
     public void recoveryPassScene(){
-        ChatMain.primaryStage.setScene(ChatMain.sceneHashMap.get("sceneRecovery"));
+        ChatMain.primaryStage.setScene(ChatMain.sceneHashMap.get("passRecoveryScene"));
     }
 
     public void setConnect(boolean connect) {

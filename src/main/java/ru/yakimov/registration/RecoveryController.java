@@ -9,7 +9,7 @@ import ru.yakimov.ChatMain;
 
 public class RecoveryController {
 
-    private final RegController regController = ChatMain.regController;
+    private  RegController regController;
 
     @FXML
     private Label recoveryLbl;
@@ -21,6 +21,7 @@ public class RecoveryController {
     private TextField controlWordRecovery;
 
     public void toRecovery(){
+        regController = ChatMain.loaderHashMap.get("registrationLoader").getController();
         if(regController.socket == null || regController.socket.isClosed()){
             regController.connectReg();
         }

@@ -9,6 +9,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
+
 public class ControllerPrivateChat {
 
     @FXML
@@ -36,8 +37,9 @@ public class ControllerPrivateChat {
     }
 
     public void sendMsg(){
+        ControllerChat controllerChat = ChatMain.loaderHashMap.get("chatPanelLoader").getController();
         String nickTo = ((PrivateStage)vBoxMessage.getScene().getWindow()).privateNickTo;
-        ChatMain.controllerChat.sendMsgFromString("/w "+nickTo+" "+messageTextField.getText());
+        controllerChat.sendMsgFromString("/w "+nickTo+" "+messageTextField.getText());
         messageTextField.clear();
         messageTextField.requestFocus();
     }

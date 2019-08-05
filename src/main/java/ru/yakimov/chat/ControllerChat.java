@@ -38,7 +38,7 @@ public class ControllerChat {
 
     private HashMap<String, PrivateStage> privateStageHashMap = new HashMap<>();
 
-    private ControllerLogin controllerLogin = ChatMain.controllerLogin;
+    private ControllerLogin controllerLogin = null;
 
     private boolean isLogin = false;
     private String login;
@@ -101,6 +101,9 @@ public class ControllerChat {
     }
 
     private void objectInitialization() throws IOException {
+        if(controllerLogin == null){
+            controllerLogin = ChatMain.loaderHashMap.get("loginPanelLoader").getController();
+        }
 
         socketWaitAndInitialisation();
 
@@ -109,7 +112,7 @@ public class ControllerChat {
     }
 
     private void componentsPreparation(){
-        ChatMain.controllerLogin.setConnect(true);
+        controllerLogin.setConnect(true);
         clientList.setOnContextMenuRequested((event)-> {
                 MyContextMenu myContextMenu = new MyContextMenu(clientList.getSelectionModel().getSelectedItem());
                 myContextMenu.show(clientList,event.getScreenX(),event.getScreenY());
@@ -351,8 +354,8 @@ public class ControllerChat {
     }
 
     private void changeCssFromEverything(String cssUrl){
-        ChatMain.sceneHashMap.get("sceneChat").getRoot().getStylesheets().clear();
-        ChatMain.sceneHashMap.get("sceneChat").getRoot().getStylesheets().add(cssUrl);
+        ChatMain.sceneHashMap.get("chatPanelScene").getRoot().getStylesheets().clear();
+        ChatMain.sceneHashMap.get("chatPanelScene").getRoot().getStylesheets().add(cssUrl);
         privateStageHashMap.forEach((k,v)->v.changeCss(cssUrl));
 
     }
