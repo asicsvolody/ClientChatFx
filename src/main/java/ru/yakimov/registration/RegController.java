@@ -59,7 +59,7 @@ public class RegController {
 
     }
 
-    public boolean isDataValid(){
+    private boolean isDataValid(){
         boolean res = true;
         if(!isTextFieldValid(loginField.getText()) || !isTextFieldValid(nickField.getText())
                 || !isTextFieldValid(controlWord.getText())){
@@ -81,7 +81,7 @@ public class RegController {
         return res;
     }
 
-    public void sendToServer(String str){
+    void sendToServer(String str){
         try {
             out.writeUTF(str);
         } catch (IOException e) {
@@ -113,6 +113,12 @@ public class RegController {
             ).start();
         } catch (IOException e) {
             e.printStackTrace();
+        }finally {
+            try {
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
     private void socketWaitAndInitialisation() throws IOException {
