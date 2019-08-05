@@ -17,6 +17,7 @@ import java.util.HashMap;
 public class ChatMain  extends Application {
 
     public static HashMap<String,Scene> sceneHashMap;
+    public static HashMap<String, FXMLLoader> loaderHashMap;
 
     public static ControllerChat controllerChat;
     public static ControllerLogin controllerLogin;
@@ -42,39 +43,55 @@ public class ChatMain  extends Application {
             controllerChat.dispose();
             regController.dispose();
             Platform.exit();
-            System.exit(0);
         });
 
     }
 
     private void sceneInitialization() throws IOException{
         sceneHashMap = new HashMap<>();
+        loaderHashMap = new HashMap<>();
 
+        loginInitialization();
+
+        registrationInitialization();
+
+        chatPanelInitialization();
+
+        passRecoveryInitialization();
+
+    }
+
+    private void loginInitialization() throws IOException {
         FXMLLoader loaderLogin = new FXMLLoader();
         Parent rootLogin = loaderLogin.load(getClass()
                 .getResourceAsStream("/resourcesLogin/loginPanel.fxml"));
         sceneHashMap.put("sceneLogin", new Scene(rootLogin,WINDOW_WIDTH,WINDOW_HEIGHT));
         controllerLogin = loaderLogin.getController();
+    }
 
+    private void registrationInitialization() throws IOException {
         FXMLLoader loaderRegistration = new FXMLLoader();
         Parent rootRegistration = loaderRegistration.load(getClass()
                 .getResourceAsStream("/resourcesReg/registration.fxml"));
         sceneHashMap.put("sceneRegistration", new Scene(rootRegistration,WINDOW_WIDTH,WINDOW_HEIGHT));
         regController = loaderRegistration.getController();
+    }
 
+    private void chatPanelInitialization() throws IOException {
         FXMLLoader loaderChat = new FXMLLoader();
         Parent rootChat = loaderChat.load(getClass()
                 .getResourceAsStream("/resourcesChat/chatPanel.fxml"));
         sceneHashMap.put("sceneChat", new Scene(rootChat,WINDOW_WIDTH,WINDOW_HEIGHT));
         controllerChat = loaderChat.getController();
+    }
+
+    private void passRecoveryInitialization() throws IOException {
 
         FXMLLoader loaderRecovery = new FXMLLoader();
         Parent rootRecovery = loaderRecovery.load(getClass()
                 .getResourceAsStream("/resourcesReg/passRecovery.fxml"));
         sceneHashMap.put("sceneRecovery", new Scene(rootRecovery,WINDOW_WIDTH,WINDOW_HEIGHT));
         recoveryController = loaderRecovery.getController();
-
-
     }
 
 
