@@ -32,8 +32,9 @@ public class ControllerLogin {
             Platform.runLater(()-> ChatMain.primaryStage.setScene(ChatMain.sceneHashMap.get("sceneChat")));
         }else{
             Platform.runLater(()-> {
-                    ChatMain.primaryStage.setScene(ChatMain.sceneHashMap.get("sceneLogin"));
-                    ChatMain.controllerChat.clearChat();
+                writeToLabelNotIdentification(" ");
+                ChatMain.primaryStage.setScene(ChatMain.sceneHashMap.get("sceneLogin"));
+                ChatMain.controllerChat.clearChat();
                 });
         }
     }
@@ -56,9 +57,8 @@ public class ControllerLogin {
             controllerChat.sendMsgFromString("/auth " + login + " " + password);
             loginField.clear();
             passwordField.clear();
-            writeToLabelNotIdentification(" ");
         }else{
-            writeToLabelNotIdentification("Введены неправильные значения");
+            writeToLabelNotIdentification("Неверные данные");
         }
     }
 
