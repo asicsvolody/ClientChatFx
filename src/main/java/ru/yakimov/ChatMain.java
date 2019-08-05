@@ -38,15 +38,7 @@ public class ChatMain  extends Application {
         primaryStage.setScene(sceneHashMap.get("loginPanelScene"));
         primaryStage.setResizable(false);
         primaryStage.show();
-
-        primaryStage.setOnCloseRequest(windowEVENT -> {
-            ControllerChat controllerChat = loaderHashMap.get("chatPanelLoader").getController();
-            RegController regController = loaderHashMap.get("registrationLoader").getController();
-            controllerChat.dispose();
-            regController.dispose();
-            Platform.exit();
-            System.exit(0);
-        });
+        primaryStage.setOnCloseRequest(windowEVENT -> closeAllAndExit());
 
     }
 
@@ -76,6 +68,15 @@ public class ChatMain  extends Application {
             }
 
         }return sb.toString();
+    }
+
+    private void closeAllAndExit(){
+        ControllerChat controllerChat = loaderHashMap.get("chatPanelLoader").getController();
+        RegController regController = loaderHashMap.get("registrationLoader").getController();
+        controllerChat.dispose();
+        regController.dispose();
+        Platform.exit();
+        System.exit(0);
     }
 }
 
