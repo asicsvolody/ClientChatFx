@@ -35,12 +35,7 @@ public class RecoveryController {
 
     void readResult(String serverMsg){
         String[] magArr = serverMsg.split(" ",2);
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                recoveryLbl.setText(magArr[1]);
-            }
-        });
+        Platform.runLater(()-> recoveryLbl.setText(magArr[1]));
     }
 
     public void backToLoginScene(){

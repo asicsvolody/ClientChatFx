@@ -46,18 +46,12 @@ public class ControllerLogin {
         String login = loginField.getText();
         String password = passwordField.getText();
 
-        if(RegController.isTextFieldValid(login) && RegController.isTextFieldValid(password)) {
+        if(isLoginPassValid(login, password)) {
+
             if(socket == null || socket.isClosed()) {
                 controllerChat.connect();
             }
-            while(!isConnect){
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-
+            waitSocket();
             controllerChat.writeLoginPassword(login, password);
             controllerChat.sendMsgFromString("/auth " + login + " " + password);
             loginField.clear();
@@ -68,16 +62,30 @@ public class ControllerLogin {
         }
     }
 
+    private void waitSocket(){
+        while(!isConnect){
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private boolean isLoginPassValid(String login, String password){
+        return RegController.isTextFieldValid(login) && RegController.isTextFieldValid(password);
+    }
+
     public void writeToLabelNotIdentification(String str){
         Platform.runLater(()-> labelNotIdentification.setText(str));
     }
 
 
-    public void registration(){
+    public void registrationScene(){
         ChatMain.primaryStage.setScene(ChatMain.sceneHashMap.get("sceneRegistration"));
     }
 
-    public void recoveryPass(){
+    public void recoveryPassScene(){
         ChatMain.primaryStage.setScene(ChatMain.sceneHashMap.get("sceneRecovery"));
     }
 

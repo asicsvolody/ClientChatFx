@@ -29,11 +29,11 @@
                         </HBox>
                         <HBox alignment="TOP_RIGHT" prefHeight="27.0" prefWidth="260.0">
                             <children>
-                                <Hyperlink onAction="#recoveryPass" prefWidth="175.0" styleClass="hyperlink-forgot" text="Forget password?" />
+                                <Hyperlink onAction="#recoveryPassScene" prefWidth="175.0" styleClass="hyperlink-forgot" text="Forget password?" />
                                 <Button mnemonicParsing="false" onAction="#tryToAuth" styleClass="button-login" text="Login" />
                             </children>
                         </HBox>
-                        <Hyperlink onAction="#registration" styleClass="hyperlink-registration" text="Registration" />
+                        <Hyperlink onAction="#registrationScene" styleClass="hyperlink-registration" text="Registration" />
                     </children>
                 </VBox>
                 <Pane prefHeight="200.0" prefWidth="180.0" />

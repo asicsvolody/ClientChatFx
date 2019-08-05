@@ -49,18 +49,7 @@ public class RegController {
 
 
     public void toRegistration(){
-        if(!isTextFieldValid(loginField.getText()) || !isTextFieldValid(nickField.getText())
-                || !isTextFieldValid(controlWord.getText())){
-            errMsg.setText("Заполните все поля(4-20 символов)");
-        } else if(!isPasswordValidSymbols(passField.getText())){
-            errMsg.setText("Пароль неверного формата A-z,0-1,_,-");
-        } else if(!isPasswordBigLetter(passField.getText())){
-            errMsg.setText("Должны быть заглавные буквыт");
-        } else if (!isPasswordNumbers(passField.getText())) {
-            errMsg.setText("Должны быть цифры");
-        } else if (!passField.getText().equals(rePassField.getText())) {
-            errMsg.setText("Пароли не совпадают");
-        } else {
+       if(isDataValid()) {
             if(socket == null || socket.isClosed()){
                 connectReg();
             }
@@ -70,9 +59,58 @@ public class RegController {
 
     }
 
+    public boolean isDataValid(){
+        boolean res = true;
+        if(!isTextFieldValid(loginField.getText()) || !isTextFieldValid(nickField.getText())
+                || !isTextFieldValid(controlWord.getText())){
+            errMsg.setText("Заполните все поля(4-20 символов)");
+            res =false;
+        } else if(!isPasswordValidSymbols(passField.getText())){
+            errMsg.setText("Пароль неверного формата A-z,0-1,_,-");
+            res = false;
+        } else if(!isPasswordBigLetter(passField.getText())){
+            errMsg.setText("В пароле нет заглавнх букв");
+            res = false;
+        } else if (!isPasswordNumbers(passField.getText())) {
+            errMsg.setText("Должны быть цифры");
+            res = false;
+        } else if (!passField.getText().equals(rePassField.getText())) {
+            errMsg.setText("Пароли не совпадают");
+            res=false;
+        }
+        return res;
+    }
+
     public void sendToServer(String str){
         try {
             out.writeUTF(str);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    void connectReg(){
+        try {
+            socketWaitAndInitialisation();
+
+            in = new DataInputStream(socket.getInputStream());
+            out = new DataOutputStream(socket.getOutputStream());
+
+            new Thread(()-> {
+                    try {
+                        registrationCycle();
+                    }catch (IOException e){
+                        e.printStackTrace();
+                    }finally {
+                        try {
+                            socket.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            ).start();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -92,67 +130,34 @@ public class RegController {
         }
     }
 
-
-    void connectReg(){
-        try {
-//            socket = new Socket(IP_ADDRESS,PORT);
-            socketWaitAndInitialisation();
-
-            in = new DataInputStream(socket.getInputStream());
-            out = new DataOutputStream(socket.getOutputStream());
-
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        while (true) {
-                            String str = in.readUTF();
-                            if(str.startsWith("/serverclosed")) break;
-                            if(str.startsWith("/regok")){
-                                Platform.runLater(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        registrationLbl.setText(" Вы зарегистрированы");
-                                        errMsg.setText("");
-                                        loginField.clear();
-                                        loginField.requestFocus();
-                                        passField.clear();
-                                        rePassField.clear();
-                                        nickField.clear();
-                                        controlWord.clear();
-                                    }
-                                });
-                                sendToServer("/end");
-                                break;
-                            }else if (str.startsWith("/recovery")){
-                                ChatMain.recoveryController.readResult(str);
-                                break;
-                            }
-                            else{
-                                Platform.runLater(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        errMsg.setText(str);
-                                    }
-                                });
-                            }
-
-                        }
-                    }catch (IOException e){
-                        e.printStackTrace();
-                    }finally {
-                        try {
-                            socket.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                }
-            }).start();
-        } catch (IOException e) {
-            e.printStackTrace();
+    private void registrationCycle() throws IOException {
+        while (true) {
+            String str = in.readUTF();
+            if(str.startsWith("/serverclosed")) break;
+            if(str.startsWith("/regok")){
+                successRegAllClear();
+                sendToServer("/end");
+            }else if (str.startsWith("/recovery")){
+                ChatMain.recoveryController.readResult(str);
+                sendToServer("/end");
+            }
+            else{
+                Platform.runLater(()-> errMsg.setText(str));
+            }
         }
+    }
+
+    private void successRegAllClear(){
+        Platform.runLater(()->{
+            registrationLbl.setText(" Вы зарегистрированы");
+            errMsg.setText("");
+            loginField.clear();
+            loginField.requestFocus();
+            passField.clear();
+            rePassField.clear();
+            nickField.clear();
+            controlWord.clear();
+        });
     }
 
     public static boolean isTextFieldValid(String str){
